@@ -28,6 +28,9 @@
 #include <sys/fcntl.h> 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
+#include <SDL/SDL.h>
+#include <SDL/SDL_mixer.h>
+#include "assets.h"
 
 #define MIYOO_VIR_SET_MODE    _IOWR(0x100, 0, unsigned long)
 #define MIYOO_VIR_SET_VER     _IOWR(0x101, 0, unsigned long)
@@ -298,6 +301,15 @@ int main(int argc, char** argv)
   unsigned int actioned = 0;
   unsigned int battery_counter = 0;
   unsigned int battery_flash_counter = 0;
+	
+	Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024);
+	Mix_AllocateChannels(2);
+	SDL_RWops *RWops2;
+	Mix_Chunk *logosound;
+	RWops2 = SDL_RWFromConstMem(wav_logosound, sizeof(wav_logosound));
+    logosound = Mix_LoadWAV_RW(RWops2, 0);
+	Mix_PlayChannel(-1, logosound, 0);
+	
   while(1){
     usleep(40000);
     
