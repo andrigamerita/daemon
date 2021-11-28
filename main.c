@@ -14,20 +14,20 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
 #include <signal.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <syslog.h>
+#include <unistd.h>
 #include <linux/ioctl.h>
 #include <sys/fcntl.h> 
-#include <sys/stat.h>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 #include "assets.h"
@@ -54,7 +54,6 @@
 #define BUTTON_COUNT	10
 
 unsigned char actionmap[BUTTON_COUNT*2]={0,0,0,0,3,4,2,1,0,13,0,0,0,0,0,0,0,0,20,0};
-
 
 static void create_daemon(void)
 {
@@ -305,21 +304,18 @@ int main(int argc, char** argv)
 	Mix_OpenAudio(22050, AUDIO_S16SYS, 2, 1024);
 	Mix_AllocateChannels(2);
 	SDL_RWops *RWops2;
-	Mix_Chunk *logosound;
-	RWops2 = SDL_RWFromConstMem(wav_logosound, sizeof(wav_logosound));
-    logosound = Mix_LoadWAV_RW(RWops2, 0);
-	Mix_PlayChannel(-1, logosound, 0);
+	//Mix_Chunk *logosound;
+	//RWops2 = SDL_RWFromConstMem(wav_logosound, sizeof(wav_logosound));
+  //logosound = Mix_LoadWAV_RW(RWops2, 0);
+	//Mix_PlayChannel(-1, logosound, 0);
 	
   while(1){
     usleep(40000);
     
-    if (battery_counter == 0){
-        battery_file = fopen(MIYOO_BATTERY, "r");
-        while ( (fgets(wstr,100,battery_file)) != NULL ) {
-	  battery_level = atoi(wstr) ;
-          //printf("%s\n", wstr);
-        }
-        fclose(battery_file);
+    if (battery_counter == 0) {
+      battery_file = fopen(MIYOO_BATTERY, "r");
+      while ( (fgets(wstr,100,battery_file)) != NULL ) battery_level = atoi(wstr);
+      fclose(battery_file);
     }
 
     battery_counter++;
@@ -374,8 +370,7 @@ int main(int argc, char** argv)
       case 0:
 	  ;
 	  break;
-      case 1:
-
+      case 1: // RIGHT
         //printf("backlight++\n");
         if(lid < 10){
           lid+= 1;
@@ -384,10 +379,8 @@ int main(int argc, char** argv)
           system(buf);
           info_fb0(fb0, lid, vol, 1);
         }
-/**/
-//    battery_counter++;
         break;
-      case 2:
+      case 2: // LEFT
         //printf("backlight--\n");
         if(lid > 1){
           lid-= 1;
@@ -397,7 +390,7 @@ int main(int argc, char** argv)
           info_fb0(fb0, lid, vol, 1);
         }
         break;
-      case 3:
+      case 3: // UP
         //printf("sound++\n");
         if(vol < 9){
           vol+= 1;
@@ -406,7 +399,7 @@ int main(int argc, char** argv)
           info_fb0(fb0, lid, vol, 1);
         }
         break;
-      case 4:
+      case 4: // DOWN
         //printf("sound--\n");
         if(vol > 0){
           vol-= 1;
@@ -511,7 +504,7 @@ int main(int argc, char** argv)
       case 12:
           system("mount -o remount,ro,utf8 /dev/mmcblk0p4");
           break;
-      case 13:
+      case 13: // START
           system("sh -c /mnt/apps/fbgrab/screenshot.sh");
           break;
       case 20:
@@ -523,7 +516,7 @@ int main(int argc, char** argv)
           }
           break;
 	        }
-      case 21:
+      case 21: // Hold SELECT
         {
           //printf("kill\n"); 
           int status;
